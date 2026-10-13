@@ -1,4 +1,4 @@
-# Indie Assist (v4 beta)
+# Indie Assist (beta)
 
 **Persönliche Assistenz, einfach organisiert.** Aufgaben für jeden Tag, Putzplan, Dienstplan, Stunden,
 Urlaub, Einkaufsliste, Termine, Chat und Abrechnung – für Menschen mit Persönlicher Assistenz und ihr Team.
@@ -14,8 +14,8 @@ Dort unten bei **„Assets“** genau **eine** Datei laden, passend zu deinem Co
 | Computer | Datei |
 |---|---|
 | Windows 10 oder 11 | `indie-assist-Setup.exe` |
-| Mac mit M1, M2, M3 oder M4 (fast alle ab 2021) | `indie-assist-Mac-AppleSilicon.dmg` |
-| älterer Mac mit Intel-Chip | `indie-assist-Mac-Intel.dmg` |
+| Mac mit M1, M2, M3 oder M4 (fast alle ab 2021) | `indie-assist-Mac-AppleSilicon.zip` |
+| älterer Mac mit Intel-Chip | `indie-assist-Mac-Intel.zip` |
 
 Welcher Mac? Apfel-Menü → „Über diesen Mac“: Steht dort „Chip Apple M…“, ist es Apple Silicon.
 
@@ -24,12 +24,19 @@ Welcher Mac? Apfel-Menü → „Über diesen Mac“: Steht dort „Chip Apple M�
 **Windows:** `indie-assist-Setup.exe` doppelklicken. Kommt „Der Computer wurde durch Windows geschützt“:
 „Weitere Informationen“ → „Trotzdem ausführen“. Durchklicken – am Ende öffnet sich die Einrichtung im Browser.
 
-**Mac:** Die `.dmg` doppelklicken, **Indie Assist** auf **„Programme“** ziehen und dort öffnen.
+**Mac:** Die `.zip` doppelklicken, **Indie Assist** in den Ordner **„Programme“** ziehen und dort öffnen.
 Kommt „kann nicht geöffnet werden“: Systemeinstellungen → Datenschutz & Sicherheit → ganz unten
 „Dennoch öffnen“ (einmalig). Dann öffnet sich die Einrichtung im Browser.
 
 Die ausführliche Anleitung (Handys im WLAN, Zugriff von unterwegs, Sicherung) liegt als
 `INSTALLATION.md` bei jeder Version auf der Download-Seite.
+
+## Aktualisieren
+
+Die App holt sich neue Versionen selbst (Einstellungen → 🔄 Update). Nach der Installation ist
+„Updates automatisch installieren“ eingeschaltet; wer lieber selbst entscheidet, nimmt den Haken weg.
+Die Daten bleiben erhalten. Wer eine Fassung von vor dem 13.10.2026 hat, führt einmal die neue
+Installationsdatei aus – ab dann geht es von allein.
 
 ## Hinweise
 
