@@ -42,7 +42,7 @@ Installationsdatei aus – ab dann geht es von allein.
 
 - **Beta-Version:** Die App wird im Alltag benutzt und laufend verbessert. Rückmeldungen gehen direkt
   in der App über „💡 Rückmeldung“. Klappt das nicht, schreib eine E-Mail an
-  [indie.assist@tutamail.com](mailto:indie.assist@tutamail.com).
+  [indie.assist.app@protonmail.com](mailto:indie.assist.app@protonmail.com).
 - Die App läuft auf **einem** Computer, der möglichst immer eingeschaltet ist. Alle anderen öffnen sie
   am Handy oder Computer im Browser – dort muss nichts installiert werden.
 - Bitte **nicht** den grünen Knopf „Code“ verwenden – hier liegen nur die Installationsdateien.
