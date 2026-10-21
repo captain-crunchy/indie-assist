@@ -46,3 +46,10 @@ Installationsdatei aus – ab dann geht es von allein.
 - Die App läuft auf **einem** Computer, der möglichst immer eingeschaltet ist. Alle anderen öffnen sie
   am Handy oder Computer im Browser – dort muss nichts installiert werden.
 - Bitte **nicht** den grünen Knopf „Code“ verwenden – hier liegen nur die Installationsdateien.
+
+## Haftungsausschluss
+
+Indie Assist ist kostenlos und wird ohne Gewähr zur Verfügung gestellt. Die App läuft auf deinem eigenen
+Gerät; für die Daten darin (auch die deiner Assistenz) und für regelmäßige Sicherungen ist der Haushalt
+selbst verantwortlich. Der Entwickler haftet nicht für Schäden oder Datenverlust. Rückmeldungen gehen nur
+mit deiner Zustimmung und ohne Namen an den Entwickler.
