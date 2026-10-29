@@ -20,7 +20,7 @@ cd pi-planer
 npm ci                                             # einzige Abhängigkeit: web-push
 APP_PIN=1234 node server.js                        # startet auf Port 3000 (PORT=…); ohne APP_PIN bricht der Start ab
 npm test                                           # node --test test/*.test.js
-node --test --test-name-pattern="Scheduler" test/  # einzelnen Test ausführen
+node --test --test-name-pattern="Scheduler" test/*.test.js  # einzelner Test
 bash -n install.sh                                 # Syntax des Installationsskripts prüfen
 ```
 
