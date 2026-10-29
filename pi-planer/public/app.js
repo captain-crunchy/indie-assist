@@ -126,11 +126,28 @@ $('#pushOn').addEventListener('click', async () => {
   await api('/push/subscribe', 'POST', sub.toJSON());
   renderPush();
 });
-$('#pushTest').addEventListener('click', async () => { const r = await api('/briefing/send', 'POST'); $('#pushState').textContent = `Gesendet an ${r.sent} Gerät(e).`; });
+$('#pushTest').addEventListener('click', async () => { const r = await api('/briefing/send', 'POST'); $('#pushState').textContent = `Gesendet an ${r.sent} Gerät(e) bzw. Telegram.`; });
+
+// Telegram
+async function renderTelegram() {
+  const s = await api('/telegram');
+  $('#tgErr').textContent = '';
+  $('#tgBot').textContent = s.bot ? '@' + s.bot : 'deines Pi-Planers';
+  $('#tgState').textContent = !s.configured ? 'Noch nicht eingerichtet: Bei der Installation einen Bot-Token angeben (siehe Anleitung).'
+    : s.connected ? `✅ Verbunden mit ${s.name}. Briefing und Erinnerungen kommen auch per Telegram.` : 'Bekomm Briefing und Erinnerungen als Telegram-Nachricht und hake Aufgaben direkt dort ab.';
+  $('#tgSteps').hidden = !s.configured || s.connected;
+  $('#tgConnect').hidden = !s.configured || s.connected;
+  $('#tgDisconnect').hidden = !s.connected;
+}
+$('#tgConnect').addEventListener('click', async () => {
+  try { await api('/telegram/connect', 'POST'); renderTelegram(); } catch (e) { $('#tgErr').textContent = e.message; }
+});
+$('#tgDisconnect').addEventListener('click', async () => { await api('/telegram/disconnect', 'POST'); renderTelegram(); });
 
 async function boot() {
   try { await reload(); } catch { return; }
   $('#app').hidden = false; $('#nav').hidden = false;
+  renderTelegram().catch(() => {});
   if (location.hash === '#briefing') go('briefing');
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 }

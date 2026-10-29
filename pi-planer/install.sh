@@ -65,9 +65,13 @@ main() {
     else
       TM_KEY=""
     fi
+    echo "Telegram (optional): In Telegram @BotFather öffnen, /newbot schreiben, Namen wählen –"
+    echo "du bekommst einen Token wie 123456789:AAH… Den hier einfügen."
+    TG="-"
+    until [[ "$TG" =~ ^([0-9]+:[A-Za-z0-9_-]+)?$ ]]; do TG=$(ask "Telegram-Bot-Token (leer lassen zum Überspringen): "); done
     # install -m 600: die Datei ist von Anfang an nur für root lesbar.
-    printf 'APP_PIN=%s\nPORT=%s\nTZ=Europe/Berlin\nBRIEFING_TIMES=09:00,14:00\nEVENTS_CITY="%s"\nTICKETMASTER_KEY=%s\n' \
-      "$PIN" "$PORT" "$CITY" "$TM_KEY" | sudo install -m 600 -o root -g root /dev/stdin "$ENV_FILE"
+    printf 'APP_PIN=%s\nPORT=%s\nTZ=Europe/Berlin\nBRIEFING_TIMES=09:00,14:00\nEVENTS_CITY="%s"\nTICKETMASTER_KEY=%s\nTELEGRAM_TOKEN=%s\n' \
+      "$PIN" "$PORT" "$CITY" "$TM_KEY" "$TG" | sudo install -m 600 -o root -g root /dev/stdin "$ENV_FILE"
   else
     echo "Einstellungen bleiben erhalten ($ENV_FILE)."
   fi
@@ -109,7 +113,8 @@ EOF
   say "Fertig! Der Pi-Planer läuft."
   echo "Im Heimnetz öffnen:   http://$IP:$PORT"
   echo "Deine Daten:          $DATA_DIR/data.json (diese Datei sichern)"
-  echo "PIN/Stadt ändern:     sudo nano $ENV_FILE  &&  sudo systemctl restart pi-planer"
+  echo "PIN/Stadt/Telegram:  sudo nano $ENV_FILE  &&  sudo systemctl restart pi-planer"
+  echo "Telegram verbinden:   in der App unter Mehr → Telegram"
 
   if [ "$(ask "Auch von unterwegs erreichbar machen und Benachrichtigungen ermöglichen (Tailscale)? [j/N] ")" = "j" ]; then
     command -v tailscale >/dev/null || curl -fsSL https://tailscale.com/install.sh | sh < /dev/null

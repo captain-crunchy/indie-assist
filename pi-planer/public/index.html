@@ -60,6 +60,16 @@
       <div class="row"><button id="pushOn">Auf diesem Gerät einschalten</button><button id="pushTest" class="ghost">Briefing jetzt senden</button></div>
       <p class="hint">iPhone/iPad: erst „Teilen → Zum Home-Bildschirm“, dann die App von dort öffnen.</p>
     </div>
+    <div class="card" id="tgCard">
+      <h2>Telegram</h2>
+      <p id="tgState"></p>
+      <ol id="tgSteps" class="hint" hidden>
+        <li>In Telegram den Bot <b id="tgBot"></b> öffnen und <b>/start</b> schreiben.</li>
+        <li>Hier auf „Verbinden“ drücken.</li>
+      </ol>
+      <div class="row"><button id="tgConnect">Verbinden</button><button id="tgDisconnect" class="ghost" hidden>Trennen</button></div>
+      <p id="tgErr" class="err"></p>
+    </div>
     <div class="card">
       <h2>Kalender abonnieren</h2>
       <p class="hint">Diese Adresse im Handy-, Google- oder Apple-Kalender als Abo eintragen:</p>

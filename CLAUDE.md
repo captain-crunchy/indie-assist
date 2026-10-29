@@ -44,6 +44,11 @@ Kein Build-Schritt, kein Linter, kein Framework: Backend ist reines `node:http`,
 - **`lib/events.js` / `lib/ics.js`:** Veranstaltungen aus Ticketmaster und ICS-Feeds, höchstens alle 6 h
   neu geladen; bei Fehlern bleibt der alte Stand. Inhalte fremder Feeds sind nicht vertrauenswürdig:
   Links laufen durch `webUrl()` (nur http/https).
+- **`lib/telegram.js`:** optionaler Bot (`TELEGRAM_TOKEN`), Long-Polling statt Webhook (braucht keine
+  öffentliche Adresse). Verbinden: `/start` an den Bot, dann `POST /api/telegram/connect` übernimmt diesen
+  Chat; alle anderen Chats werden ignoriert. Knopf-/Befehlslogik liegt in `server.js` (`telegramButton`,
+  `telegramCommand`) und wird per `telegram.use()` übergeben. Der Scheduler schickt alles über
+  `notify()` = Web-Push + Telegram; Knöpfe als `buttons: [[{ text, data: 'done:<id>' }]]`.
 - **`public/`:** `app.js` baut alle Elemente über `h()` mit `textContent`/`setAttribute`, nie `innerHTML`
   (Nutzer- und Feed-Texte). `sw.js` zeigt nur Push-Nachrichten an, kein Offline-Cache.
 - **Tests** (`test/app.test.js`) setzen `DATA_FILE`, `APP_PIN` und `TZ` **vor** dem ersten `require`, weil

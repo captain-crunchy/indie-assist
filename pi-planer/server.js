@@ -6,6 +6,7 @@ const store = require('./lib/store');
 const push = require('./lib/push');
 const events = require('./lib/events');
 const scheduler = require('./lib/scheduler');
+const telegram = require('./lib/telegram');
 const { buildBriefing } = require('./lib/briefing');
 const { toICS } = require('./lib/ics');
 
@@ -78,9 +79,16 @@ async function api(req, res, url) {
   }
   if (p === '/api/briefing' && m === 'GET') return send(res, 200, buildBriefing(d));
   if (p === '/api/briefing/send' && m === 'POST') {
-    const b = buildBriefing(d);
-    return send(res, 200, { sent: await push.sendAll({ title: b.title, body: b.body, tag: 'briefing', url: '/#briefing' }) });
+    const [pushSent, tgSent] = await scheduler.notify(scheduler.briefingMessage(buildBriefing(d)));
+    return send(res, 200, { sent: pushSent + tgSent });
   }
+  if (p === '/api/telegram' && m === 'GET') return send(res, 200, telegram.status());
+  if (p === '/api/telegram/connect' && m === 'POST') {
+    if (!telegram.connect()) return send(res, 400, { error: `Der Bot hat noch kein /start bekommen. Schreib in Telegram an ${telegram.status().bot ? '@' + telegram.status().bot : 'deinen Bot'} „/start“ und drück dann noch einmal auf „Verbinden“.` });
+    await telegram.send({ body: '✅ Verbunden! Hier kommen ab jetzt dein Briefing und deine Erinnerungen. /hilfe zeigt, was ich kann.' });
+    return send(res, 200, telegram.status());
+  }
+  if (p === '/api/telegram/disconnect' && m === 'POST') { telegram.disconnect(); return send(res, 200, telegram.status()); }
   if (p === '/api/events/external/refresh' && m === 'POST') return send(res, 200, { extEvents: await events.refresh(true) });
 
   if (p === '/api/push/key') return send(res, 200, { key: vapidPublic });
@@ -112,6 +120,48 @@ async function api(req, res, url) {
   return send(res, 404, { error: 'unbekannt' });
 }
 
+// ---- Telegram: Knöpfe und Befehle ----
+const fmtTime = iso => new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: process.env.TZ || 'Europe/Berlin' });
+const HILFE = 'So geht\'s:\n/heute – Briefing jetzt\n/neu Text – neue Aufgabe\n/dringend Text – neue dringende Aufgabe\n/offen – alle offenen Aufgaben';
+const short = s => s.length > 28 ? s.slice(0, 27) + '…' : s;
+
+async function telegramButton(action, id) {
+  const t = d.todos.find(x => x.id === id);
+  if (!t) return 'Diese Aufgabe gibt es nicht mehr.';
+  if (action === 'done') {
+    t.done = true; store.save();
+    const left = buildBriefing(d).sections;
+    const n = left.overdue.length + left.dueToday.length;
+    return `✅ Erledigt: ${t.title}` + (n ? `\nNoch ${n} für heute.` : '\nFür heute ist alles erledigt. 🎉');
+  }
+  if (action === 'snooze') {
+    t.due = new Date(Math.max(Date.now(), +new Date(t.due || 0)) + 3600e3).toISOString();
+    t.notified = {}; store.save();
+    return `⏰ Verschoben auf ${fmtTime(t.due)}: ${t.title}`;
+  }
+  return 'Unbekannter Knopf.';
+}
+
+async function telegramCommand(text) {
+  const [cmd, ...rest] = text.split(' ');
+  const arg = rest.join(' ').trim();
+  if (cmd === '/heute') return scheduler.briefingMessage(buildBriefing(d));
+  if (cmd === '/neu' || cmd === '/dringend') {
+    if (!arg) return { body: `Bitte mit Text, z. B. „${cmd} Brot kaufen“.` };
+    const t = cleanTodo({ title: arg, urgent: cmd === '/dringend' }, { id: store.id(), created: new Date().toISOString(), done: false, urgent: false, due: null });
+    d.todos.push(t); store.save();
+    return { body: `${t.urgent ? '🔥' : '📝'} Neu: ${t.title}` };
+  }
+  if (cmd === '/offen') {
+    const open = d.todos.filter(t => !t.done);
+    return { body: open.length ? open.map(t => `${t.urgent ? '🔥' : '•'} ${t.title}${t.due ? ' (bis ' + fmtTime(t.due) + ')' : ''}`).join('\n') : 'Nichts offen. 🎉',
+      buttons: open.slice(0, 6).map(t => [{ text: '✅ ' + short(t.title), data: 'done:' + t.id }]) };
+  }
+  return { body: HILFE };
+}
+
+telegram.use({ button: telegramButton, command: telegramCommand });
+
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://x');
@@ -132,5 +182,6 @@ const server = http.createServer(async (req, res) => {
 if (require.main === module) {
   server.listen(PORT, () => console.log(`Pi-Planer läuft auf Port ${PORT}`));
   scheduler.start();
+  telegram.start();
 }
-module.exports = server;
+module.exports = Object.assign(server, { telegramButton, telegramCommand });

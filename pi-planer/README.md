@@ -14,6 +14,17 @@ Handy, Tablet und PC öffnen dieselbe Adresse und sehen immer denselben Stand.
 - **Briefing um 09:00 und 14:00** (einstellbar): Termine heute, Überfälliges, heute Fälliges, Dringendes
   und Veranstaltungen – als Push und im Tab „Heute“. War der Pi kurz aus, wird es bis 90 Min. später nachgeholt.
 - **Veranstaltungen** aus deiner Stadt (Ticketmaster) und/oder aus beliebigen ICS-Feeds.
+- **Telegram** (optional): Briefing und Erinnerungen als Nachricht, mit Knöpfen „✅ Erledigt“ und „⏰ +1 Std.“.
+  Befehle: `/heute`, `/neu Text`, `/dringend Text`, `/offen`. Funktioniert auch ohne HTTPS.
+
+## Telegram einrichten
+
+1. In Telegram **@BotFather** öffnen, `/newbot` schreiben, Namen wählen. Du bekommst einen Token (`123456789:AAH…`).
+2. Den Token bei der Installation eingeben (oder `TELEGRAM_TOKEN=…` in `/etc/pi-planer.env`, dann `sudo systemctl restart pi-planer`).
+3. Deinem neuen Bot in Telegram `/start` schreiben.
+4. In der App unter **Mehr → Telegram** auf **Verbinden** drücken.
+
+Nur der verbundene Chat kann den Bot bedienen; Nachrichten anderer werden ignoriert.
 
 ## Auf dem Pi einrichten
 
@@ -50,6 +61,7 @@ Bei der Installation von Hand liegen die Daten in `data/data.json` – diese Dat
 | `BRIEFING_TIMES` | Briefing-Zeiten | 09:00,14:00 |
 | `EVENTS_CITY`, `TICKETMASTER_KEY` | Veranstaltungen aus Ticketmaster ([kostenloser Key](https://developer.ticketmaster.com)) | – |
 | `EVENTS_ICS_URLS` | Kommagetrennte ICS-Feeds mit Veranstaltungen | – |
+| `TELEGRAM_TOKEN` | Token des eigenen Telegram-Bots (von @BotFather) | – |
 | `DATA_FILE` | Speicherort | `data/data.json` (Installationsskript: `~/pi-planer-data/data.json`) |
 
 ## Von Handy/Tablet erreichen – und warum HTTPS nötig ist

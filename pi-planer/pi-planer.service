@@ -16,6 +16,8 @@ Environment=BRIEFING_TIMES=09:00,14:00
 #Environment=EVENTS_CITY=Hamburg
 #Environment=TICKETMASTER_KEY=dein-key
 #Environment=EVENTS_ICS_URLS=https://example.org/veranstaltungen.ics
+# Telegram-Bot (Token von @BotFather), danach in der App unter Mehr → Telegram verbinden:
+#Environment=TELEGRAM_TOKEN=123456789:AAH...
 ExecStart=/usr/bin/node server.js
 Restart=always
 

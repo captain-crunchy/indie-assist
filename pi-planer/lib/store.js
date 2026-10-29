@@ -4,7 +4,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 const FILE = process.env.DATA_FILE || path.join(__dirname, '..', 'data', 'data.json');
-const empty = () => ({ todos: [], events: [], extEvents: [], extFetchedAt: 0, subs: [], vapid: null, lastBriefing: {} });
+const empty = () => ({ todos: [], events: [], extEvents: [], extFetchedAt: 0, subs: [], vapid: null, lastBriefing: {}, telegram: null });
 
 let db = empty();
 try { db = { ...empty(), ...JSON.parse(fs.readFileSync(FILE, 'utf8')) }; } catch { /* erster Start */ }
