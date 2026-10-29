@@ -17,6 +17,17 @@ Handy, Tablet und PC öffnen dieselbe Adresse und sehen immer denselben Stand.
 
 ## Auf dem Pi einrichten
 
+**Am einfachsten – ein Befehl** (im Terminal des Pi; installiert alles, fragt nach PIN und Stadt,
+startet die App automatisch bei jedem Hochfahren, auf Wunsch mit Tailscale für unterwegs):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/captain-crunchy/indie-assist/claude/pi-planer/pi-planer/install.sh | bash
+```
+
+Derselbe Befehl aktualisiert später auf die neueste Version (PIN und Daten bleiben).
+
+Oder von Hand:
+
 ```bash
 sudo apt install -y nodejs npm        # Node 20 oder neuer nötig (node -v prüfen)
 git clone https://github.com/captain-crunchy/indie-assist && cd indie-assist/pi-planer
