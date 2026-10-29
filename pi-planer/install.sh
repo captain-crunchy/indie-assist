@@ -64,7 +64,7 @@ main() {
   if [ ! -f "$ENV_FILE" ]; then
     say "Einstellungen"
     PIN=""
-    until [[ "$PIN" =~ ^[A-Za-z0-9]{4,}$ ]]; do PIN=$(ask "PIN zum Anmelden (mind. 4 Zeichen, nur Buchstaben und Ziffern): "); done
+    until [[ "$PIN" =~ ^[A-Za-z0-9]{4,}$ ]]; do PIN=$(ask_secret "PIN zum Anmelden (mind. 4 Zeichen, nur Buchstaben und Ziffern; bleibt beim Tippen unsichtbar): "); done
     # Anführungszeichen, Backslash, $ und ` würden die Einstellungsdatei durcheinanderbringen.
     CITY='"'
     while [[ "$CITY" == *[\"\\\$\`]* ]]; do CITY=$(ask "Deine Stadt für Veranstaltungen (leer lassen zum Überspringen): "); done
@@ -143,6 +143,7 @@ EOF
 
 say() { printf '\n\033[1;34m▶ %s\033[0m\n' "$*"; }
 ask() { local a; read -r -p "$1" a < /dev/tty; printf '%s' "$a"; }
+ask_secret() { local a; read -r -s -p "$1" a < /dev/tty; echo > /dev/tty; printf '%s' "$a"; }
 port_free() { ! ss -ltnH "sport = :$1" 2>/dev/null | grep -q .; }
 node_major() { node -v 2>/dev/null | sed 's/^v\([0-9]*\).*/\1/' || echo 0; }
 
