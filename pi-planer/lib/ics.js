@@ -24,10 +24,13 @@ function parseICS(text) {
     const get = k => { const m = block.match(new RegExp(`^${k}[^:\\n]*:(.*)$`, 'm')); return m ? m[1].trim().replace(/\\([,;n\\])/g, (_, c) => c === 'n' ? '\n' : c) : ''; };
     const start = icsDate(get('DTSTART'));
     if (!start) continue;
-    out.push({ id: 'ics-' + get('UID'), title: get('SUMMARY'), start, place: get('LOCATION'), url: get('URL') });
+    out.push({ id: 'ics-' + get('UID'), title: get('SUMMARY'), start, place: get('LOCATION'), url: webUrl(get('URL')) });
   }
   return out;
 }
+// Links aus fremden Feeds nur als http(s) übernehmen – nie javascript: o. Ä.
+const webUrl = u => /^https?:\/\//i.test(u) ? u : '';
+
 function icsDate(v) {
   const m = v.match(/^(\d{4})(\d\d)(\d\d)(?:T(\d\d)(\d\d)(\d\d)(Z)?)?$/);
   if (!m) return null;
@@ -35,4 +38,4 @@ function icsDate(v) {
   return new Date(`${y}-${mo}-${d}T${h}:${mi}:${s}${z || ''}`).toISOString();
 }
 
-module.exports = { toICS, parseICS };
+module.exports = { toICS, parseICS, webUrl };

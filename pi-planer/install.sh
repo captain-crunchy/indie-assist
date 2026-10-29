@@ -1,61 +1,79 @@
 #!/usr/bin/env bash
 # Pi-Planer mit einem Befehl auf dem Raspberry Pi installieren oder aktualisieren:
 #   curl -fsSL https://raw.githubusercontent.com/captain-crunchy/indie-assist/claude/pi-planer/pi-planer/install.sh | bash
+# Einstellungen später ändern:  sudo nano /etc/pi-planer.env  &&  sudo systemctl restart pi-planer
 set -euo pipefail
 
-BRANCH="${PI_PLANER_BRANCH:-claude/pi-planer}"
-REPO="https://github.com/captain-crunchy/indie-assist"
-USER_NAME="$(id -un)"
-DIR="$HOME/pi-planer-app"
-ENV_FILE="/etc/pi-planer.env"
-PORT=3000
+# Alles steckt in main(), das erst in der letzten Zeile aufgerufen wird: Bricht der Download
+# bei "curl | bash" mittendrin ab, läuft dadurch kein halbes Skript.
+main() {
+  BRANCH="${PI_PLANER_BRANCH:-claude/pi-planer}"
+  REPO="https://github.com/captain-crunchy/indie-assist"
+  USER_NAME="$(id -un)"
+  DIR="$HOME/pi-planer-app"
+  DATA_DIR="$HOME/pi-planer-data"
+  ENV_FILE="/etc/pi-planer.env"
+  PORT=3000
 
-say() { printf '\n\033[1;34m▶ %s\033[0m\n' "$*"; }
-ask() { local a; read -r -p "$1" a < /dev/tty; printf '%s' "$a"; }
+  if [ "$(id -u)" -eq 0 ]; then echo "Bitte als normaler Benutzer starten (nicht mit sudo)."; exit 1; fi
 
-if [ "$(id -u)" -eq 0 ]; then echo "Bitte als normaler Benutzer starten (nicht mit sudo)."; exit 1; fi
+  say "Prüfe Node.js und git"
+  if [ "$(node_major)" -lt 20 ]; then
+    say "Installiere Node.js 22 (dauert ein paar Minuten)"
+    curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - < /dev/null
+    sudo apt-get install -y nodejs < /dev/null
+    hash -r
+    if [ "$(node_major)" -lt 20 ]; then
+      echo "Es wird immer noch $(command -v node) ($(node -v)) verwendet. Bitte die alte Node-Version entfernen und neu starten."
+      exit 1
+    fi
+  fi
+  if ! command -v git >/dev/null; then
+    sudo apt-get update < /dev/null
+    sudo apt-get install -y git < /dev/null
+  fi
+  NODE_BIN="$(command -v node)"
+  echo "Node $(node -v) ($NODE_BIN)"
 
-say "Prüfe Node.js"
-NODE_MAJOR=$(node -v 2>/dev/null | sed 's/^v\([0-9]*\).*/\1/' || echo 0)
-if [ "${NODE_MAJOR:-0}" -lt 20 ]; then
-  say "Installiere Node.js 22 (dauert ein paar Minuten)"
-  curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-  sudo apt-get install -y nodejs
-fi
-command -v git >/dev/null || sudo apt-get install -y git
-echo "Node $(node -v)"
+  say "Lade den Pi-Planer"
+  if [ -d "$DIR/.git" ]; then
+    git -C "$DIR" fetch --depth 1 origin "$BRANCH" && git -C "$DIR" reset --hard FETCH_HEAD
+  else
+    git clone --depth 1 -b "$BRANCH" "$REPO" "$DIR"
+  fi
+  cd "$DIR/pi-planer"
+  npm ci --omit=dev --no-audit --no-fund < /dev/null
 
-say "Lade den Pi-Planer"
-if [ -d "$DIR/.git" ]; then
-  git -C "$DIR" fetch --depth 1 origin "$BRANCH" && git -C "$DIR" reset --hard FETCH_HEAD
-else
-  git clone --depth 1 -b "$BRANCH" "$REPO" "$DIR"
-fi
-cd "$DIR/pi-planer"
-npm ci --omit=dev --no-audit --no-fund
+  # Wer vorher von Hand installiert hat: vorhandene Daten übernehmen statt leer anzufangen.
+  mkdir -p "$DATA_DIR"
+  if [ ! -f "$DATA_DIR/data.json" ]; then
+    for old in "$HOME/indie-assist/pi-planer/data/data.json" "$DIR/pi-planer/data/data.json"; do
+      if [ -f "$old" ]; then cp "$old" "$DATA_DIR/data.json"; echo "Vorhandene Daten übernommen aus $old"; break; fi
+    done
+  fi
 
-if [ ! -f "$ENV_FILE" ]; then
-  say "Einstellungen"
-  PIN=""
-  while [ "${#PIN}" -lt 4 ]; do PIN=$(ask "PIN zum Anmelden wählen (mind. 4 Zeichen): "); done
-  CITY=$(ask "Deine Stadt für Veranstaltungen (leer lassen zum Überspringen): ")
-  TM_KEY=""
-  [ -n "$CITY" ] && TM_KEY=$(ask "Ticketmaster-Key (leer lassen, wenn du keinen hast): ")
-  sudo tee "$ENV_FILE" >/dev/null <<EOF
-APP_PIN=$PIN
-PORT=$PORT
-TZ=Europe/Berlin
-BRIEFING_TIMES=09:00,14:00
-EVENTS_CITY=$CITY
-TICKETMASTER_KEY=$TM_KEY
-EOF
-  sudo chmod 600 "$ENV_FILE"
-else
-  echo "Einstellungen bleiben erhalten ($ENV_FILE)."
-fi
+  if [ ! -f "$ENV_FILE" ]; then
+    say "Einstellungen"
+    PIN=""
+    until [[ "$PIN" =~ ^[A-Za-z0-9]{4,}$ ]]; do PIN=$(ask "PIN zum Anmelden (mind. 4 Zeichen, nur Buchstaben und Ziffern): "); done
+    # Anführungszeichen, Backslash, $ und ` würden die Einstellungsdatei durcheinanderbringen.
+    CITY='"'
+    while [[ "$CITY" == *[\"\\\$\`]* ]]; do CITY=$(ask "Deine Stadt für Veranstaltungen (leer lassen zum Überspringen): "); done
+    TM_KEY="-"
+    if [ -n "$CITY" ]; then
+      until [[ "$TM_KEY" =~ ^[A-Za-z0-9]*$ ]]; do TM_KEY=$(ask "Ticketmaster-Key (leer lassen, wenn du keinen hast): "); done
+    else
+      TM_KEY=""
+    fi
+    # install -m 600: die Datei ist von Anfang an nur für root lesbar.
+    printf 'APP_PIN=%s\nPORT=%s\nTZ=Europe/Berlin\nBRIEFING_TIMES=09:00,14:00\nEVENTS_CITY="%s"\nTICKETMASTER_KEY=%s\n' \
+      "$PIN" "$PORT" "$CITY" "$TM_KEY" | sudo install -m 600 -o root -g root /dev/stdin "$ENV_FILE"
+  else
+    echo "Einstellungen bleiben erhalten ($ENV_FILE)."
+  fi
 
-say "Richte automatischen Start ein"
-sudo tee /etc/systemd/system/pi-planer.service >/dev/null <<EOF
+  say "Richte automatischen Start ein"
+  sudo tee /etc/systemd/system/pi-planer.service >/dev/null <<EOF
 [Unit]
 Description=Pi-Planer
 After=network-online.target
@@ -65,32 +83,48 @@ Wants=network-online.target
 User=$USER_NAME
 WorkingDirectory=$DIR/pi-planer
 EnvironmentFile=$ENV_FILE
-Environment=DATA_FILE=$HOME/pi-planer-data/data.json
-ExecStart=$(command -v node) server.js
+Environment=DATA_FILE=$DATA_DIR/data.json
+ExecStart=$NODE_BIN server.js
 Restart=always
 
 [Install]
 WantedBy=multi-user.target
 EOF
-sudo systemctl daemon-reload
-sudo systemctl enable pi-planer >/dev/null 2>&1
-sudo systemctl restart pi-planer
-sleep 2
-if ! systemctl is-active --quiet pi-planer; then
-  echo "Start fehlgeschlagen. Details: sudo journalctl -u pi-planer -n 30"; exit 1
-fi
+  sudo systemctl daemon-reload
+  sudo systemctl enable pi-planer >/dev/null 2>&1
+  sudo systemctl restart pi-planer
 
-IP=$(hostname -I | awk '{print $1}')
-say "Fertig! Der Pi-Planer läuft."
-echo "Im Heimnetz öffnen:   http://$IP:$PORT"
+  # Warten, bis die App wirklich antwortet (ein Pi Zero braucht etwas länger).
+  local ok=""
+  for _ in $(seq 1 30); do
+    if curl -fsS -o /dev/null "http://127.0.0.1:$PORT/"; then ok=1; break; fi
+    sleep 1
+  done
+  if [ -z "$ok" ]; then
+    echo "Die App antwortet nicht. Details: sudo journalctl -u pi-planer -n 30"
+    exit 1
+  fi
 
-if [ "$(ask "Auch von unterwegs erreichbar machen und Benachrichtigungen ermöglichen (Tailscale)? [j/N] ")" = "j" ]; then
-  command -v tailscale >/dev/null || curl -fsSL https://tailscale.com/install.sh | sh
-  echo "Gleich erscheint ein Link – im Browser öffnen und mit deinem Tailscale-Konto anmelden."
-  sudo tailscale up
-  sudo tailscale serve --bg "$PORT"
-  URL=$(sudo tailscale serve status 2>/dev/null | grep -o 'https://[^ ]*' | head -1)
-  echo
-  echo "Von überall öffnen:  ${URL:-siehe 'sudo tailscale serve status'}"
-  echo "(Am Handy die Tailscale-App installieren und mit demselben Konto anmelden.)"
-fi
+  IP=$(hostname -I | awk '{print $1}')
+  say "Fertig! Der Pi-Planer läuft."
+  echo "Im Heimnetz öffnen:   http://$IP:$PORT"
+  echo "Deine Daten:          $DATA_DIR/data.json (diese Datei sichern)"
+  echo "PIN/Stadt ändern:     sudo nano $ENV_FILE  &&  sudo systemctl restart pi-planer"
+
+  if [ "$(ask "Auch von unterwegs erreichbar machen und Benachrichtigungen ermöglichen (Tailscale)? [j/N] ")" = "j" ]; then
+    command -v tailscale >/dev/null || curl -fsSL https://tailscale.com/install.sh | sh < /dev/null
+    echo "Gleich erscheint ein Link – im Browser öffnen und mit deinem Tailscale-Konto anmelden."
+    sudo tailscale up < /dev/null
+    sudo tailscale serve --bg "$PORT" < /dev/null
+    URL=$(sudo tailscale serve status 2>/dev/null | grep -o 'https://[^ ]*' | head -1 || true)
+    echo
+    echo "Von überall öffnen:  ${URL:-siehe 'sudo tailscale serve status'}"
+    echo "(Am Handy die Tailscale-App installieren und mit demselben Konto anmelden.)"
+  fi
+}
+
+say() { printf '\n\033[1;34m▶ %s\033[0m\n' "$*"; }
+ask() { local a; read -r -p "$1" a < /dev/tty; printf '%s' "$a"; }
+node_major() { node -v 2>/dev/null | sed 's/^v\([0-9]*\).*/\1/' || echo 0; }
+
+main "$@"

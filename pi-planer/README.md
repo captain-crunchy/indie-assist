@@ -25,6 +25,8 @@ curl -fsSL https://raw.githubusercontent.com/captain-crunchy/indie-assist/claude
 ```
 
 Derselbe Befehl aktualisiert später auf die neueste Version (PIN und Daten bleiben).
+Die Daten liegen dann in `~/pi-planer-data/data.json` – diese Datei sichern.
+PIN oder Stadt ändern: `sudo nano /etc/pi-planer.env`, danach `sudo systemctl restart pi-planer`.
 
 Oder von Hand:
 
@@ -36,7 +38,7 @@ APP_PIN=123456 TZ=Europe/Berlin node server.js     # zum Ausprobieren
 ```
 
 Dauerhaft: `pi-planer.service` anpassen und als systemd-Dienst installieren (Anleitung steht in der Datei).
-Die Daten liegen in `data/data.json` – diese Datei sichern.
+Bei der Installation von Hand liegen die Daten in `data/data.json` – diese Datei sichern.
 
 ### Einstellungen (Umgebungsvariablen)
 
@@ -48,7 +50,7 @@ Die Daten liegen in `data/data.json` – diese Datei sichern.
 | `BRIEFING_TIMES` | Briefing-Zeiten | 09:00,14:00 |
 | `EVENTS_CITY`, `TICKETMASTER_KEY` | Veranstaltungen aus Ticketmaster ([kostenloser Key](https://developer.ticketmaster.com)) | – |
 | `EVENTS_ICS_URLS` | Kommagetrennte ICS-Feeds mit Veranstaltungen | – |
-| `DATA_FILE` | Speicherort | `data/data.json` |
+| `DATA_FILE` | Speicherort | `data/data.json` (Installationsskript: `~/pi-planer-data/data.json`) |
 
 ## Von Handy/Tablet erreichen – und warum HTTPS nötig ist
 

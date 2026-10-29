@@ -42,6 +42,12 @@ test('ICS: Export und Import stimmen überein, Sonderzeichen werden maskiert', (
   assert.strictEqual(back[0].start, '2026-11-01T14:00:00.000Z');
 });
 
+test('ICS: Links aus fremden Feeds nur als http(s)', () => {
+  const feed = u => `BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nUID:1\r\nDTSTART:20261101T140000Z\r\nSUMMARY:X\r\nURL:${u}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`;
+  assert.strictEqual(parseICS(feed('javascript:alert(1)'))[0].url, '');
+  assert.strictEqual(parseICS(feed('https://example.org/a'))[0].url, 'https://example.org/a');
+});
+
 test('API: Login, To-do anlegen/ändern, Fristwechsel setzt Erinnerung zurück', async () => {
   await new Promise(r => server.listen(0, r));
   const base = `http://127.0.0.1:${server.address().port}`;

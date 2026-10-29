@@ -1,6 +1,6 @@
 // Veranstaltungen aus der Umgebung: Ticketmaster (kostenloser API-Key) und/oder ICS-Feeds.
 const store = require('./store');
-const { parseICS } = require('./ics');
+const { parseICS, webUrl } = require('./ics');
 
 const DAY = 24 * 3600e3;
 
@@ -14,7 +14,7 @@ async function fetchTicketmaster(city, key) {
   const j = await r.json();
   return (j._embedded?.events || []).map(e => ({
     id: 'tm-' + e.id, title: e.name, start: e.dates?.start?.dateTime || e.dates?.start?.localDate + 'T00:00:00',
-    place: e._embedded?.venues?.[0]?.name || '', url: e.url, source: 'Ticketmaster',
+    place: e._embedded?.venues?.[0]?.name || '', url: webUrl(e.url || ''), source: 'Ticketmaster',
   }));
 }
 
