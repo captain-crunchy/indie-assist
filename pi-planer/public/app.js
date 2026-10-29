@@ -30,6 +30,8 @@ const ICONS = {
   mond: '<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 6.5 6.5 0 0 0 20 14.5z"/>',
   kreis: '<path d="M4 12a8 8 0 0 1 13.7-5.7L20 8.5M20 4v4.5h-4.5M20 12a8 8 0 0 1-13.7 5.7L4 15.5M4 20v-4.5h4.5"/>',
   schloss: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  auge: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+  kontrast: '<circle cx="12" cy="12" r="9"/><path d="M12 3v18" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>',
   link: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
 };
 function icon(name, cls = 'ic') {
@@ -190,6 +192,22 @@ $('#tgConnect').addEventListener('click', async () => {
 $('#tgDisconnect').addEventListener('click', async () => { await api('/telegram/disconnect', 'POST'); renderTelegram(); });
 
 fillIcons();
+
+// Anzeige: Automatisch / Hell / Dunkel / Hoher Kontrast – pro Gerät gemerkt
+const THEME_KEY = 'pi-planer-anzeige';
+function applyTheme(choice) {
+  if (choice === 'auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', choice);
+  document.querySelectorAll('[data-theme-choice]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeChoice === choice)));
+}
+let themeChoice = 'auto';
+try { themeChoice = localStorage.getItem(THEME_KEY) || 'auto'; } catch {}
+applyTheme(themeChoice);
+$('#themeSeg').addEventListener('click', e => {
+  const b = e.target.closest('[data-theme-choice]'); if (!b) return;
+  applyTheme(b.dataset.themeChoice);
+  try { localStorage.setItem(THEME_KEY, b.dataset.themeChoice); } catch {}
+});
 
 async function boot() {
   try { await reload(); } catch { return; }

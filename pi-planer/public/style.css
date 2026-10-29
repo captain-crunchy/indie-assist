@@ -20,6 +20,23 @@
   --green: #4f8a0c; --green-hi: #6fae2a; --green-soft: #1f3322; --head-a: #1f3322; --head-b: #1a2a1c; --head-ink: #b9df8c;
   --nav-a: #1e211e; --nav-b: #1e211e; --nav-c: #1e211e; --red: #ff8a80; --red-soft: #3d1f1d; --input: #161916; --input-line: #555c55;
   --shadow: none; color-scheme: dark; }
+/* Hoher Kontrast wie bei Indie Assist: Schwarz, Weiß, Gelb – gewählt unter Mehr → Anzeige */
+:root[data-theme="contrast"] {
+  --bg: #000; --card: #000; --card2: #1a1a1a; --ink: #fff; --mute: #fff; --line: #fff;
+  --green: #ffe600; --green-hi: #ffe600; --green-soft: #000; --on-green: #000;
+  --head-a: #000; --head-b: #000; --head-ink: #ffe600; --nav-a: #000; --nav-b: #000; --nav-c: #000;
+  --red: #ffe600; --red-soft: #000; --alarm: #b71c1c; --input: #000; --input-line: #fff; --shadow: none; color-scheme: dark; }
+:root[data-theme="contrast"] :is(.card, .item, .phead) { border: 2px solid #fff; }
+:root[data-theme="contrast"] .card { border-top: 4px solid #ffe600; }
+:root[data-theme="contrast"] nav { background: #000; border-top: 2px solid #fff; }
+:root[data-theme="contrast"] nav button { color: #fff; }
+:root[data-theme="contrast"] nav button.on { background: #000; outline: 3px solid #ffe600; outline-offset: -3px; color: #ffe600; }
+:root[data-theme="contrast"] nav button.on .ic { color: #ffe600; }
+:root[data-theme="contrast"] nav button.on::before { background: #ffe600; }
+:root[data-theme="contrast"] .btn.ghost { border: 2px solid #fff; }
+:root[data-theme="contrast"] .phead .bg { opacity: .35; }
+:root[data-theme="contrast"] body { font-size: 19px; }
+
 [hidden] { display: none !important; }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -36,7 +53,7 @@ a { color: var(--green); font-weight: 700; }
 .ic { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .badge { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: var(--green); color: var(--on-green); flex: none; }
 .badge .ic { width: 18px; height: 18px; }
-.badge.red { background: var(--alarm); }
+.badge.red { background: var(--alarm); color: #fff; }
 
 /* ---------- Kopfstreifen jeder Seite, dahinter blass das Symbol ---------- */
 .phead { position: relative; overflow: hidden; border-radius: 14px; padding: 16px 18px; margin-bottom: 16px;
@@ -94,6 +111,13 @@ button { cursor: pointer; }
 .err { color: var(--red); font-weight: 700; }
 details summary { cursor: pointer; color: var(--mute); font-weight: 700; margin: 18px 2px 8px; }
 ol.hint { padding-left: 1.3em; margin: 0; display: grid; gap: 4px; }
+/* Anzeige-Wahl: vier gleich große Knöpfe, der gewählte ist grün */
+.seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+.seg button { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 8px 10px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--card); color: var(--ink); font-weight: 700; }
+.seg button .ic { color: var(--green); }
+.seg button[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: var(--on-green); }
+.seg button[aria-pressed="true"] .ic { color: var(--on-green); }
 
 /* ---------- Menüleiste unten: grün mit Dünen, weiße Symbole ---------- */
 nav { position: fixed; inset: auto 0 0 0; z-index: 10; display: flex; gap: 4px;

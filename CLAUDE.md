@@ -54,7 +54,8 @@ Kein Build-Schritt, kein Linter, kein Framework: Backend ist reines `node:http`,
 - **Design** folgt Indie Assist (Salbei-Grund, weiße Karten mit grüner Linie, grünes Menü mit Dünen, Schrift
   Atkinson Hyperlegible lokal in `public/fonts/`), aber mit **weißen** Linien-Symbolen auf Grün. Symbole stehen als
   feste SVG-Pfade in `ICONS` (`app.js`); im HTML `<i data-icon="name">`, `fillIcons()` ersetzt sie. Farben nur über
-  die Tokens in `style.css` (`:root` + Dunkel-Blöcke). Rot nur für Überfälliges/„Dringend“, immer mit Wort.
+  die Tokens in `style.css` (`:root` + Dunkel-Blöcke + `[data-theme="contrast"]`). Anzeige-Wahl (Auto/Hell/Dunkel/
+  Kontrast) setzt `data-theme` am `<html>`, gemerkt pro Gerät in `localStorage`. Rot nur für Überfälliges/„Dringend“, immer mit Wort.
 - **Tests** (`test/app.test.js`) setzen `DATA_FILE`, `APP_PIN` und `TZ` **vor** dem ersten `require`, weil
   Store und Server diese beim Laden lesen; der Scheduler-Test ersetzt `push.sendAll`.
 
