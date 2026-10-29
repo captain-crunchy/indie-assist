@@ -70,8 +70,12 @@ Im Heimnetz geht `http://<pi-adresse>:3000`. **Benachrichtigungen funktionieren 
 Am einfachsten und ohne Port-Freigabe im Router: [Tailscale](https://tailscale.com) auf Pi und Handy installieren, dann
 
 ```bash
-sudo tailscale serve --bg 3000      # gibt eine https://…ts.net-Adresse aus
+sudo tailscale serve --bg --https=10444 http://127.0.0.1:3000   # Port der App eintragen
 ```
+
+Der eigene Port 10444 ist Absicht: Ohne `--https=…` würde die Hauptadresse des Pi (`https://<name>.ts.net`)
+überschrieben – läuft dort schon eine andere App (z. B. Indie Assist), wäre sie danach nicht mehr erreichbar.
+Die Adresse ist dann `https://<name-des-pi>.<tailnet>.ts.net:10444`. Das Installationsskript macht das automatisch.
 
 Diese Adresse am Handy öffnen → „Zum Home-Bildschirm“ → in der App unter **Mehr** *Benachrichtigungen einschalten*.
 iPhone/iPad: Push geht nur, wenn die App vom Home-Bildschirm geöffnet wird (iOS 16.4+).

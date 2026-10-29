@@ -64,5 +64,6 @@ Kein Build-Schritt, kein Linter, kein Framework: Backend ist reines `node:http`,
   nach `~/pi-planer-app`, speichert Daten in `~/pi-planer-data/data.json`, Einstellungen in
   `/etc/pi-planer.env` (0600) und richtet den systemd-Dienst `pi-planer` ein. Die Install-URL in README und
   Skript zeigt auf den Branch `claude/pi-planer` – nach einem Merge beide anpassen.
-- Web-Push funktioniert nur über HTTPS; vorgesehen ist `tailscale serve`. Dahinter kommen alle Anfragen von
+- Web-Push funktioniert nur über HTTPS; vorgesehen ist `tailscale serve --https=10444` (eigener Port, nie die
+  Hauptadresse 443 – auf dem Ziel-Pi belegt Indie Assist sie schon). Die App nimmt den ersten freien Port ab 3030. Dahinter kommen alle Anfragen von
   127.0.0.1 (relevant für die IP-basierte PIN-Sperre in `server.js`).

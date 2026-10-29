@@ -13,7 +13,16 @@ main() {
   DIR="$HOME/pi-planer-app"
   DATA_DIR="$HOME/pi-planer-data"
   ENV_FILE="/etc/pi-planer.env"
-  PORT=3000
+  TS_PORT=10444   # eigener HTTPS-Port bei Tailscale – die Hauptadresse (443) gehört oft schon einer anderen App
+
+  # Port der App: aus den Einstellungen übernehmen, sonst den ersten freien ab 3030 nehmen
+  # (auf dem Pi laufen oft schon andere Dienste, z. B. Indie Assist).
+  if [ -f "$ENV_FILE" ]; then
+    PORT=$(sudo sed -n 's/^PORT=\([0-9]*\)$/\1/p' "$ENV_FILE"); PORT=${PORT:-3030}
+  else
+    PORT=3030
+    while ! port_free "$PORT"; do PORT=$((PORT + 1)); done
+  fi
 
   if [ "$(id -u)" -eq 0 ]; then echo "Bitte als normaler Benutzer starten (nicht mit sudo)."; exit 1; fi
 
@@ -119,9 +128,13 @@ EOF
   if [ "$(ask "Auch von unterwegs erreichbar machen und Benachrichtigungen ermöglichen (Tailscale)? [j/N] ")" = "j" ]; then
     command -v tailscale >/dev/null || curl -fsSL https://tailscale.com/install.sh | sh < /dev/null
     echo "Gleich erscheint ein Link – im Browser öffnen und mit deinem Tailscale-Konto anmelden."
-    sudo tailscale up < /dev/null
-    sudo tailscale serve --bg "$PORT" < /dev/null
-    URL=$(sudo tailscale serve status 2>/dev/null | grep -o 'https://[^ ]*' | head -1 || true)
+    # Nur anmelden, wenn Tailscale noch nicht läuft – „tailscale up“ auf einem eingerichteten Gerät kann an
+    # dessen Einstellungen scheitern.
+    tailscale status >/dev/null 2>&1 || sudo tailscale up < /dev/null
+    # Eigener Port, nur im eigenen Tailnet (kein Funnel): bestehende Einträge anderer Apps bleiben unberührt.
+    sudo tailscale serve --bg --https="$TS_PORT" "http://127.0.0.1:$PORT" < /dev/null
+    HOST=$(tailscale status --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).Self.DNSName.replace(/\.$/,"")))' || true)
+    URL=${HOST:+https://$HOST:$TS_PORT}
     echo
     echo "Von überall öffnen:  ${URL:-siehe 'sudo tailscale serve status'}"
     echo "(Am Handy die Tailscale-App installieren und mit demselben Konto anmelden.)"
@@ -130,6 +143,7 @@ EOF
 
 say() { printf '\n\033[1;34m▶ %s\033[0m\n' "$*"; }
 ask() { local a; read -r -p "$1" a < /dev/tty; printf '%s' "$a"; }
+port_free() { ! ss -ltnH "sport = :$1" 2>/dev/null | grep -q .; }
 node_major() { node -v 2>/dev/null | sed 's/^v\([0-9]*\).*/\1/' || echo 0; }
 
 main "$@"
