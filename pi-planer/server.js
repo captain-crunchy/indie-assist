@@ -27,7 +27,7 @@ const authed = req => safeEq(cookieOf(req).sid || '', sessionToken);
 
 // Brute-Force-Bremse für den PIN: 5 Fehlversuche pro IP, dann 1 Minute Pause.
 const fails = new Map();
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2', '.txt': 'text/plain; charset=utf-8' };
 
 const send = (res, code, body, type = 'application/json', headers = {}) => {
   res.writeHead(code, { 'Content-Type': type, 'X-Content-Type-Options': 'nosniff', ...headers });

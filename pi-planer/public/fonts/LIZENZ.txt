@@ -1,0 +1,7 @@
+Schrift in diesem Ordner
+
+Atkinson Hyperlegible – Copyright (c) Braille Institute of America, Inc. Lizenz: SIL Open Font License 1.1.
+
+Die SIL Open Font License 1.1 erlaubt, die Schrift zu verwenden, mitzuliefern und weiterzugeben,
+solange sie nicht einzeln verkauft wird und dieser Hinweis erhalten bleibt.
+Lizenztext: https://openfontlicense.org

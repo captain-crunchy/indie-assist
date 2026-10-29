@@ -3,20 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#2f6fed">
+<meta name="theme-color" content="#3f7306">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icon.svg">
 <link rel="apple-touch-icon" href="/icon.svg">
 <title>Pi-Planer</title>
+<link rel="stylesheet" href="/fonts.css">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+<!-- Symbole: data-icon="name" wird von app.js durch ein weißes Linien-Symbol ersetzt -->
 <div id="login" hidden>
   <form id="loginForm">
-    <h1>Pi-Planer</h1>
-    <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="PIN" required>
-    <button>Anmelden</button>
-    <p id="loginErr" class="err"></p>
+    <div class="brand"><img src="/icon.svg" alt=""><b>Pi-Planer</b></div>
+    <div class="card">
+      <label for="pin">PIN</label>
+      <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
+      <button class="btn"><i data-icon="schloss"></i>Anmelden</button>
+    </div>
+    <p id="loginErr" class="err" role="alert"></p>
   </form>
 </div>
 
@@ -24,66 +29,71 @@
   <section id="tab-briefing" class="tab"></section>
 
   <section id="tab-todos" class="tab" hidden>
+    <header class="phead"><h1>To-dos</h1><small>Dringendes steht oben</small><i class="bg" data-icon="aufgaben"></i></header>
     <form id="todoForm" class="card add">
-      <input name="title" placeholder="Neue Aufgabe …" required maxlength="300">
-      <div class="row">
-        <label class="chk"><input type="checkbox" name="urgent"> 🔥 Dringend</label>
-        <label>Zeitlimit <input type="datetime-local" name="due"></label>
-        <button>Hinzufügen</button>
-      </div>
+      <label for="todoTitle">Neue Aufgabe</label>
+      <input id="todoTitle" name="title" required maxlength="300" placeholder="z. B. Rezept abholen">
+      <label for="todoDue">Zeitlimit (optional)<input type="datetime-local" name="due" id="todoDue"></label>
+      <label class="chk"><input type="checkbox" name="urgent" id="todoUrgent"> Dringend</label>
+      <button class="btn"><i data-icon="plus"></i>Hinzufügen</button>
     </form>
     <ul id="todoList" class="list"></ul>
     <details id="doneBox"><summary>Erledigt</summary><ul id="doneList" class="list"></ul></details>
   </section>
 
   <section id="tab-kalender" class="tab" hidden>
+    <header class="phead"><h1>Kalender</h1><small>Deine Termine</small><i class="bg" data-icon="kalender"></i></header>
     <form id="eventForm" class="card add">
-      <input name="title" placeholder="Neuer Termin …" required maxlength="300">
+      <label for="evTitle">Neuer Termin</label>
+      <input id="evTitle" name="title" required maxlength="300" placeholder="z. B. Physiotherapie">
       <div class="row">
-        <label>Beginn <input type="datetime-local" name="start" required></label>
-        <label>Ende <input type="datetime-local" name="end"></label>
+        <label for="evStart">Beginn<input type="datetime-local" name="start" id="evStart" required></label>
+        <label for="evEnd">Ende<input type="datetime-local" name="end" id="evEnd"></label>
       </div>
-      <div class="row"><input name="place" placeholder="Ort (optional)" maxlength="300"><button>Hinzufügen</button></div>
+      <label for="evPlace">Ort (optional)<input name="place" id="evPlace" maxlength="300"></label>
+      <button class="btn"><i data-icon="kalenderPlus"></i>Termin eintragen</button>
     </form>
     <div id="eventList"></div>
   </section>
 
   <section id="tab-events" class="tab" hidden>
-    <div class="row between"><h2>Veranstaltungen in deiner Nähe</h2><button id="refreshExt" class="ghost">↻</button></div>
+    <header class="phead"><h1>Veranstaltungen</h1><small>In deiner Nähe</small><i class="bg" data-icon="ticket"></i></header>
+    <button id="refreshExt" class="btn ghost"><i data-icon="kreis"></i>Neu laden</button>
     <div id="extList"></div>
   </section>
 
   <section id="tab-settings" class="tab" hidden>
+    <header class="phead"><h1>Mehr</h1><small>Benachrichtigungen, Telegram, Kalender-Abo</small><i class="bg" data-icon="einstellungen"></i></header>
     <div class="card">
-      <h2>Benachrichtigungen</h2>
+      <h2><span class="badge"><i data-icon="glocke"></i></span>Benachrichtigungen</h2>
       <p id="pushState"></p>
-      <div class="row"><button id="pushOn">Auf diesem Gerät einschalten</button><button id="pushTest" class="ghost">Briefing jetzt senden</button></div>
+      <div class="row"><button id="pushOn" class="btn"><i data-icon="glocke"></i>Einschalten</button><button id="pushTest" class="btn ghost"><i data-icon="sonne"></i>Briefing senden</button></div>
       <p class="hint">iPhone/iPad: erst „Teilen → Zum Home-Bildschirm“, dann die App von dort öffnen.</p>
     </div>
     <div class="card" id="tgCard">
-      <h2>Telegram</h2>
+      <h2><span class="badge"><i data-icon="flieger"></i></span>Telegram</h2>
       <p id="tgState"></p>
       <ol id="tgSteps" class="hint" hidden>
         <li>In Telegram den Bot <b id="tgBot"></b> öffnen und <b>/start</b> schreiben.</li>
         <li>Hier auf „Verbinden“ drücken.</li>
       </ol>
-      <div class="row"><button id="tgConnect">Verbinden</button><button id="tgDisconnect" class="ghost" hidden>Trennen</button></div>
+      <div class="row"><button id="tgConnect" class="btn"><i data-icon="flieger"></i>Verbinden</button><button id="tgDisconnect" class="btn ghost" hidden>Trennen</button></div>
       <p id="tgErr" class="err"></p>
     </div>
     <div class="card">
-      <h2>Kalender abonnieren</h2>
+      <h2><span class="badge"><i data-icon="kalender"></i></span>Kalender abonnieren</h2>
       <p class="hint">Diese Adresse im Handy-, Google- oder Apple-Kalender als Abo eintragen:</p>
-      <input id="icsUrl" readonly onclick="this.select()">
+      <input id="icsUrl" readonly aria-label="Abo-Adresse">
     </div>
   </section>
 </main>
 
-<nav id="nav" hidden>
-  <button data-tab="briefing" class="on">🏠<span>Heute</span></button>
-  <button data-tab="todos">✅<span>To-dos</span></button>
-  <button data-tab="kalender">📅<span>Kalender</span></button>
-  <button data-tab="events">🎟️<span>Events</span></button>
-  <button data-tab="settings">⚙️<span>Mehr</span></button>
+<nav id="nav" hidden aria-label="Hauptmenü">
+  <button data-tab="briefing" class="on"><i data-icon="start"></i><span>Heute</span></button>
+  <button data-tab="todos"><i data-icon="aufgaben"></i><span>To-dos</span></button>
+  <button data-tab="kalender"><i data-icon="kalender"></i><span>Kalender</span></button>
+  <button data-tab="events"><i data-icon="ticket"></i><span>Events</span></button>
+  <button data-tab="settings"><i data-icon="einstellungen"></i><span>Mehr</span></button>
 </nav>
 <script src="/app.js"></script>
 </body>
