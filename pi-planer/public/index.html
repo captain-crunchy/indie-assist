@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f6fed">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon.svg">
+<link rel="apple-touch-icon" href="/icon.svg">
+<title>Pi-Planer</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="login" hidden>
+  <form id="loginForm">
+    <h1>Pi-Planer</h1>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="PIN" required>
+    <button>Anmelden</button>
+    <p id="loginErr" class="err"></p>
+  </form>
+</div>
+
+<main id="app" hidden>
+  <section id="tab-briefing" class="tab"></section>
+
+  <section id="tab-todos" class="tab" hidden>
+    <form id="todoForm" class="card add">
+      <input name="title" placeholder="Neue Aufgabe …" required maxlength="300">
+      <div class="row">
+        <label class="chk"><input type="checkbox" name="urgent"> 🔥 Dringend</label>
+        <label>Zeitlimit <input type="datetime-local" name="due"></label>
+        <button>Hinzufügen</button>
+      </div>
+    </form>
+    <ul id="todoList" class="list"></ul>
+    <details id="doneBox"><summary>Erledigt</summary><ul id="doneList" class="list"></ul></details>
+  </section>
+
+  <section id="tab-kalender" class="tab" hidden>
+    <form id="eventForm" class="card add">
+      <input name="title" placeholder="Neuer Termin …" required maxlength="300">
+      <div class="row">
+        <label>Beginn <input type="datetime-local" name="start" required></label>
+        <label>Ende <input type="datetime-local" name="end"></label>
+      </div>
+      <div class="row"><input name="place" placeholder="Ort (optional)" maxlength="300"><button>Hinzufügen</button></div>
+    </form>
+    <div id="eventList"></div>
+  </section>
+
+  <section id="tab-events" class="tab" hidden>
+    <div class="row between"><h2>Veranstaltungen in deiner Nähe</h2><button id="refreshExt" class="ghost">↻</button></div>
+    <div id="extList"></div>
+  </section>
+
+  <section id="tab-settings" class="tab" hidden>
+    <div class="card">
+      <h2>Benachrichtigungen</h2>
+      <p id="pushState"></p>
+      <div class="row"><button id="pushOn">Auf diesem Gerät einschalten</button><button id="pushTest" class="ghost">Briefing jetzt senden</button></div>
+      <p class="hint">iPhone/iPad: erst „Teilen → Zum Home-Bildschirm“, dann die App von dort öffnen.</p>
+    </div>
+    <div class="card">
+      <h2>Kalender abonnieren</h2>
+      <p class="hint">Diese Adresse im Handy-, Google- oder Apple-Kalender als Abo eintragen:</p>
+      <input id="icsUrl" readonly onclick="this.select()">
+    </div>
+  </section>
+</main>
+
+<nav id="nav" hidden>
+  <button data-tab="briefing" class="on">🏠<span>Heute</span></button>
+  <button data-tab="todos">✅<span>To-dos</span></button>
+  <button data-tab="kalender">📅<span>Kalender</span></button>
+  <button data-tab="events">🎟️<span>Events</span></button>
+  <button data-tab="settings">⚙️<span>Mehr</span></button>
+</nav>
+<script src="/app.js"></script>
+</body>
+</html>

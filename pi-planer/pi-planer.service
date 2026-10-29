@@ -1,0 +1,23 @@
+# Nach /etc/systemd/system/pi-planer.service kopieren (Pfad und Benutzer anpassen), dann:
+#   sudo systemctl daemon-reload && sudo systemctl enable --now pi-planer
+[Unit]
+Description=Pi-Planer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/indie-assist/pi-planer
+Environment=PORT=3000
+Environment=TZ=Europe/Berlin
+Environment=APP_PIN=HIER-PIN-EINTRAGEN
+Environment=BRIEFING_TIMES=09:00,14:00
+# Veranstaltungen aus der Umgebung (optional):
+#Environment=EVENTS_CITY=Hamburg
+#Environment=TICKETMASTER_KEY=dein-key
+#Environment=EVENTS_ICS_URLS=https://example.org/veranstaltungen.ics
+ExecStart=/usr/bin/node server.js
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

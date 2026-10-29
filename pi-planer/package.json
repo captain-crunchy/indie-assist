@@ -1,0 +1,13 @@
+{
+  "name": "pi-planer",
+  "version": "0.1.0",
+  "description": "Persönliche To-dos, Kalender, Briefing und Veranstaltungen – läuft auf dem Raspberry Pi, bedienbar von Handy, Tablet und PC.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": { "node": ">=20" },
+  "license": "MIT",
+  "dependencies": { "web-push": "^3.6.7" }
+}
